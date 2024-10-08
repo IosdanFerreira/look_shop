@@ -8,22 +8,22 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsString()
-  @IsEmail({}, { message: 'O campo email deve conter um email válido' })
-  @IsNotEmpty({ message: 'O campo email é obrigatório' })
+  @IsEmail({}, { message: 'Este campo deve conter um email válido' })
+  @IsNotEmpty({ message: 'Este campo é obrigatório' })
   email: string;
 
-  @IsString()
+  @IsString({ message: 'O campo password deve ser uma string' })
   @IsNotEmpty({ message: 'O campo password é obrigatório' })
   @MinLength(8, {
     message: 'O campo password deve conter no mínimo 8 caracteres',
   })
   @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'Senha muito fraca',
+    message:
+      'O campo password deve ser forte: incluir letras maiúsculas, minúsculas, números ou símbolos',
   })
   password: string;
 
-  @IsString()
+  @IsString({ message: 'O campo name deve ser uma string' })
   @IsNotEmpty({ message: 'O campo name é obrigatório' })
   name: string;
 
