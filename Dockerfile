@@ -2,7 +2,7 @@
 FROM node:lts-alpine
 
 # Instala o bash
-RUN apk add --no-cache bash / npm install -g @nestjs/cli
+RUN apk add --no-cache bash && npm install -g @nestjs/cli
 
 # Muda para o usuário root para as próximas operações
 USER root
