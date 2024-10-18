@@ -1,20 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from 'src/users/entities/user.entity';
 import { UserPayload } from './models/userPayload';
 import { JwtService } from '@nestjs/jwt';
 import { UserToken } from './models/userToken';
+import { CreateAuthDto } from './dto/create-auth.dto';
+import { AuthRepository } from './repositories/auth.repository';
+import { AuthEntity } from './entities/auth.entity';
+import refreshJwtConfig from './config/refresh-jwt.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly repository: AuthRepository,
+    @Inject(refreshJwtConfig.KEY)
+    private refreshTokenConfig: ConfigType<typeof refreshJwtConfig>,
   ) {}
 
   async validateUser(email: string, password: string) {
-    const existingUser = await this.userService.findUserByEmail(email);
+    const existingUser = await this.repository.findUserByEmail(email);
 
     if (existingUser) {
       // Checa se a senha informada na requisição corresponde ao hash que está no banco
@@ -37,7 +42,11 @@ export class AuthService {
     throw new Error('Email ou senha inválidos');
   }
 
-  login(user: UserEntity): UserToken {
+  signUp(createAuthDto: CreateAuthDto) {
+    return this.repository.signUp(createAuthDto);
+  }
+
+  login(user: AuthEntity): UserToken {
     // Transforma um user em um JWT
     const payload: UserPayload = {
       sub: user.id,
@@ -45,11 +54,30 @@ export class AuthService {
       name: user.name,
     };
 
-    const jwtToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
 
     return {
       ...user,
-      accessToken: jwtToken,
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  refresh(user: AuthEntity) {
+    const payload: UserPayload = {
+      sub: user.id,
+      email: user.email,
+      name: user.name,
+    };
+
+    const accessToken = this.jwtService.sign(payload);
+    const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
+
+    return {
+      ...user,
+      accessToken,
+      refreshToken,
     };
   }
 }
