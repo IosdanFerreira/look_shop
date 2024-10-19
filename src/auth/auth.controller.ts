@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -38,7 +37,7 @@ export class AuthController {
   @Post('refreshToken')
   @HttpCode(HttpStatus.OK)
   @UseGuards(RefreshJwtAuthGuard)
-  async refreshToken(@Req() req) {
+  async refreshToken(@Request() req) {
     return this.authService.refresh(req.user);
   }
 }

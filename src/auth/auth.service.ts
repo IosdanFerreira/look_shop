@@ -38,7 +38,6 @@ export class AuthService {
       }
     }
 
-    // Caso o usuário não exista, retorna um erro genérico
     throw new Error('Email ou senha inválidos');
   }
 
@@ -54,6 +53,7 @@ export class AuthService {
       name: user.name,
     };
 
+    // Gera o token de acesso e o refresh token
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
 
@@ -65,17 +65,18 @@ export class AuthService {
   }
 
   refresh(user: AuthEntity) {
+    // Transforma um user em um JWT
     const payload: UserPayload = {
       sub: user.id,
       email: user.email,
       name: user.name,
     };
 
+    // Gera o token de acesso e o refresh token novamente
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, this.refreshTokenConfig);
 
     return {
-      ...user,
       accessToken,
       refreshToken,
     };

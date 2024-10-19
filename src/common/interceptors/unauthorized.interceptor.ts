@@ -15,10 +15,7 @@ export class UnauthorizedInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((error: any) => {
         if (error instanceof UnauthorizedError) {
-          throw new UnauthorizedException({
-            message: 'teste',
-            type: 'type test',
-          });
+          throw new UnauthorizedException();
         } else {
           throw error;
         }
